@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ContactHub – a contact management app to add, view, edit, delete, search, import and export contacts.">
+  <title>ContactHub – Contact Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-logo"><i class="fa-solid fa-address-book"></i></span>
+        <span class="brand-name">Contact<b>Hub</b></span>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="addBtn">
+        <i class="fa-solid fa-user-plus"></i> New Contact
+      </button>
+
+      <nav class="groups" aria-label="Contact groups">
+        <p class="nav-title">Groups</p>
+        <ul id="groupList">
+          <!-- filled by JavaScript -->
+        </ul>
+      </nav>
+
+      <div class="data-tools">
+        <p class="nav-title">Data</p>
+        <button class="btn btn-ghost btn-block" id="importBtn"><i class="fa-solid fa-file-import"></i> Import JSON</button>
+        <button class="btn btn-ghost btn-block" id="exportBtn"><i class="fa-solid fa-file-export"></i> Export JSON</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+        <div class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" id="searchInput" placeholder="Search name, phone, email, company…" aria-label="Search contacts" autocomplete="off">
+          <kbd>/</kbd>
+        </div>
+        <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+      </header>
+
+      <section class="stats" aria-label="Summary">
+        <div class="stat"><i class="fa-solid fa-users"></i><div><b id="statTotal">0</b><span>Total contacts</span></div></div>
+        <div class="stat"><i class="fa-solid fa-star"></i><div><b id="statFav">0</b><span>Favorites</span></div></div>
+        <div class="stat"><i class="fa-solid fa-briefcase"></i><div><b id="statWork">0</b><span>Work</span></div></div>
+        <div class="stat"><i class="fa-solid fa-cake-candles"></i><div><b id="statBirthday">0</b><span>Birthdays this month</span></div></div>
+      </section>
+
+      <div class="toolbar">
+        <h1 id="viewTitle">All Contacts</h1>
+        <p class="result-count" id="resultCount" aria-live="polite"></p>
+        <div class="toolbar-right">
+          <label class="select">
+            <span class="sr-only">Sort by</span>
+            <select id="sortSelect">
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="company">Company</option>
+            </select>
+          </label>
+          <div class="view-toggle" role="group" aria-label="Layout">
+            <button class="icon-btn active" data-view="grid" aria-label="Grid view" aria-pressed="true"><i class="fa-solid fa-grip"></i></button>
+            <button class="icon-btn" data-view="list" aria-label="List view" aria-pressed="false"><i class="fa-solid fa-list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <section class="contacts grid" id="contactList" aria-label="Contacts"></section>
+
+      <div class="empty" id="emptyState" hidden>
+        <i class="fa-regular fa-address-card"></i>
+        <h2 id="emptyTitle">No contacts yet</h2>
+        <p id="emptyText">Add your first contact or import a JSON file.</p>
+        <button class="btn btn-primary" id="emptyAddBtn"><i class="fa-solid fa-user-plus"></i> Add Contact</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add / Edit dialog -->
+  <dialog class="modal" id="formModal" aria-labelledby="formTitle">
+    <form id="contactForm" novalidate>
+      <header class="modal-head">
+        <h2 id="formTitle">New Contact</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+
+      <div class="modal-body">
+        <div class="avatar-picker">
+          <div class="avatar avatar-xl" id="avatarPreview"></div>
+          <div class="avatar-controls">
+            <p class="label">Avatar</p>
+            <div class="seg" role="radiogroup" aria-label="Avatar style">
+              <label><input type="radio" name="avatarStyle" value="initials" checked><span>Initials</span></label>
+              <label><input type="radio" name="avatarStyle" value="pattern"><span>Pattern</span></label>
+              <label><input type="radio" name="avatarStyle" value="emoji"><span>Emoji</span></label>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="shuffleAvatar"><i class="fa-solid fa-shuffle"></i> Shuffle colors</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="firstName">First name <span class="req">*</span></label>
+            <input id="firstName" name="firstName" maxlength="40" required autocomplete="given-name">
+            <small class="error" id="firstName-error"></small>
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" name="lastName" maxlength="40" autocomplete="family-name">
+            <small class="error" id="lastName-error"></small>
+          </div>
+          <div class="field">
+            <label for="phone">Phone <span class="req">*</span></label>
+            <input id="phone" name="phone" type="tel" maxlength="20" placeholder="+91 98765 43210" autocomplete="tel">
+            <small class="error" id="phone-error"></small>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" maxlength="80" placeholder="name@example.com" autocomplete="email">
+            <small class="error" id="email-error"></small>
+          </div>
+          <div class="field">
+            <label for="company">Company</label>
+            <input id="company" name="company" maxlength="60" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="jobTitle">Job title</label>
+            <input id="jobTitle" name="jobTitle" maxlength="60" autocomplete="organization-title">
+          </div>
+          <div class="field">
+            <label for="group">Group</label>
+            <select id="group" name="group">
+              <option>Family</option>
+              <option>Friends</option>
+              <option>Work</option>
+              <option selected>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="birthday">Birthday</label>
+            <input id="birthday" name="birthday" type="date">
+            <small class="error" id="birthday-error"></small>
+          </div>
+          <div class="field span-2">
+            <label for="address">Address</label>
+            <input id="address" name="address" maxlength="120" autocomplete="street-address">
+          </div>
+          <div class="field span-2">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" rows="3" maxlength="300"></textarea>
+            <small class="counter"><span id="notesCount">0</span>/300</small>
+          </div>
+          <label class="check span-2">
+            <input type="checkbox" id="favorite" name="favorite"> <i class="fa-solid fa-star"></i> Mark as favorite
+          </label>
+        </div>
+        <p class="hint"><span class="req">*</span> First name and phone are required.</p>
+      </div>
+
+      <footer class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Contact</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Details dialog -->
+  <dialog class="modal modal-sm" id="viewModal" aria-labelledby="viewName">
+    <div class="details" id="detailsContent"></div>
+  </dialog>
+
+  <!-- Confirm dialog (delete / import mode) -->
+  <dialog class="modal modal-sm" id="confirmModal" aria-labelledby="confirmTitle">
+    <div class="confirm">
+      <div class="confirm-icon" id="confirmIcon"><i class="fa-solid fa-trash-can"></i></div>
+      <h2 id="confirmTitle">Delete contact?</h2>
+      <p id="confirmText"></p>
+      <div class="confirm-actions" id="confirmActions"></div>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="js/avatar.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

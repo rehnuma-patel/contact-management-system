@@ -1,0 +1,40 @@
+{
+  "app": "ContactHub",
+  "version": 1,
+  "contacts": [
+    {
+      "firstName": "Kabir",
+      "lastName": "Singh",
+      "phone": "+91 98450 12345",
+      "email": "kabir.singh@example.com",
+      "company": "Orbit Studio",
+      "jobTitle": "Photographer",
+      "group": "Friends",
+      "favorite": true,
+      "avatarStyle": "emoji"
+    },
+    {
+      "firstName": "Fatima",
+      "lastName": "Ansari",
+      "phone": "+91 99870 65432",
+      "email": "fatima.ansari@example.com",
+      "group": "Family",
+      "birthday": "1995-10-30",
+      "address": "Kurla, Mumbai"
+    },
+    {
+      "firstName": "Arjun",
+      "lastName": "Nair",
+      "phone": "+91 90000 11122",
+      "company": "Brightpath",
+      "jobTitle": "QA Engineer",
+      "group": "Work",
+      "avatarStyle": "pattern",
+      "notes": "Prefers WhatsApp messages."
+    },
+    {
+      "lastName": "Invalid record (no first name) – will be skipped",
+      "phone": "12345"
+    }
+  ]
+}
